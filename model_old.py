@@ -188,7 +188,7 @@ model = XGBClassifier(min_child_weight=5.533830209405815, gamma=0.28458054178025
 
 grid_search = GridSearchCV(model, param_grid, cv=3, scoring=mapk_scorer, n_jobs=-1, verbose=0)
 
-grid_search.fit(X_train, y_train)
+grid_search.fit(train_df, y)
 
 print("Best set of hyperparameters: ", grid_search.best_params_)
 print("Best score: ", grid_search.best_score_)
