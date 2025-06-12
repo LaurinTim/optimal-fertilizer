@@ -53,8 +53,8 @@ mapk_scorer = make_scorer(mapk, response_method='predict_proba', greater_is_bett
 # %%
 
 param_grid = {
-    'max_depth': [3, 5, 10, 20, 30],
-    'learning_rate': [0.1, 0.01, 0.001],
+    'max_depth': [30],
+    'learning_rate': [0.1,0.11],
 }
 
 #K=5
