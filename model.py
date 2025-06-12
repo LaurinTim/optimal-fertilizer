@@ -38,10 +38,7 @@ def mae(actual, predicted):
 
 def mapk(actual, predicted, k=3):
     """Compute mean average precision at k (MAP@k)."""
-    print(actual.shape, predicted.shape)
-    print('-'*100)
-    #print(type(actual), type(predicted))
-    #print('-'*100)
+    top3_predicted = np.argsort(predicted, axis=1)[:, ::-1][:, :3]
     def apk(a, p, k):
         score = 0.0
         for i in range(min(k, len(p))):
@@ -49,15 +46,15 @@ def mapk(actual, predicted, k=3):
                 score += 1.0 / (i + 1)
                 break  # only the first correct prediction counts
         return score
-    return np.mean([apk(a, p, k) for a, p in zip(actual, predicted)])
+    return np.mean([apk(a, p, k) for a, p in zip(actual, top3_predicted)])
 
-mapk_scorer = make_scorer(mapk, response_method='predict_proba')
+mapk_scorer = make_scorer(mapk, response_method='predict_proba', greater_is_better=True)
     
 # %%
 
 param_grid = {
-    'max_depth': [10, 20],#[3, 5, 10, 20, 30],
-    'learning_rate': [0.11]#[0.1, 0.01, 0.001],
+    'max_depth': [3, 5, 10, 20, 30],
+    'learning_rate': [0.1, 0.01, 0.001],
 }
 
 #K=5
@@ -66,19 +63,17 @@ param_grid = {
 model = XGBClassifier(min_child_weight=5.533830209405815, gamma=0.2845805417802597, 
     alpha=2.9500411716472144, subsample=0.5998720852200778, 
     colsample_bytree=0.4193001268301755, eta=0.5271936074396966, 
-    n_estimators=10, reg_lambda=0.01059616433916218,
+    n_estimators=100, reg_lambda=0.01059616433916218,
     objective='multi:softprob', enable_categorical=True,
     tree_method='hist', device='cpu',
     n_jobs=-1)
 
-grid_search = GridSearchCV(model, param_grid, cv=3, scoring=mapk_scorer, n_jobs=-1, verbose=0)
+grid_search = GridSearchCV(model, param_grid, cv=5, scoring=mapk_scorer, n_jobs=-1, verbose=1)
 
 grid_search.fit(train_df, y)
 
 print("Best set of hyperparameters: ", grid_search.best_params_)
 print("Best score: ", grid_search.best_score_)
-
-
 
 
 
